@@ -1,0 +1,16 @@
+#!/bin/bash
+ROOT_DIR_PATH=$(cd $(dirname $0)/.. && pwd)
+
+go run $ROOT_DIR_PATH/src/github.com/vito/gosub/*.go list \
+  -a github.com/cloudfoundry-incubator/guardian/... \
+  -t github.com/cloudfoundry-incubator/guardian/gqt/... \
+  -a github.com/opencontainers/runc/... \
+  -a github.com/vito/gosub/... \
+  -a github.com/coreos/go-systemd/dbus/... \
+  -a github.com/coreos/go-systemd/util/... \
+  -a github.com/docker/docker/pkg/mount/... \
+  -a github.com/docker/docker/pkg/symlink/... \
+  -a github.com/docker/docker/pkg/term/... \
+  -a github.com/docker/docker/pkg/units/... \
+  -a github.com/godbus/dbus/... \
+  -a github.com/syndtr/gocapability/capability/...

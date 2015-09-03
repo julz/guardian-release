@@ -1,0 +1,47 @@
+#!/bin/bash
+# vim: set ft=sh
+
+set -e -x
+
+cd $(dirname $0)/../..
+
+export GOROOT=/usr/local/go
+export PATH=$GOROOT/bin:$PATH
+export GOPATH=$PWD
+export PATH=$GOPATH/bin:$PATH
+
+pushd src/github.com/cloudfoundry-incubator/garden-linux
+make
+
+if ! grep -qs '/sys' /proc/mounts; then
+  mount -t sysfs sysfs /sys
+fi
+
+tmpdir=/tmp/dir
+rm -fr $tmpdir
+mkdir -p $tmpdir/depot
+mkdir $tmpdir/snapshots
+mkdir $tmpdir/graph
+
+./out/garden-linux \
+  -depot=$tmpdir/depot \
+  -snapshots=$tmpdir/snapshots \
+  -graph=$tmpdir/graph \
+  -bin=$PWD/linux_backend/bin \
+  -listenNetwork=tcp \
+  -listenAddr=0.0.0.0:7777 \
+  -denyNetworks= \
+  -allowNetworks= \
+  -allowHostAccess=false \
+  -mtu=1500 \
+  -containerGraceTime=5m \
+  -rootfs=/opt/warden/rootfs &
+
+sleep 5
+popd
+
+go install github.com/onsi/ginkgo/ginkgo
+cd src/github.com/cloudfoundry-incubator/garden-integration-tests
+export GARDEN_ADDRESS=$(hostname):7777
+export BTRFS_SUPPORTED=true
+ginkgo -p -nodes=4 "$@"

@@ -1,0 +1,17 @@
+#!/bin/bash 
+
+set -ex
+
+cd $(dirname $0)/../..
+
+export GOROOT=/usr/local/go
+export PATH=$GOROOT/bin:$PATH
+
+export GOPATH=$PWD
+export PATH=$GOPATH/bin:$PATH
+
+cd src/github.com/cloudfoundry-incubator/guardian
+go install github.com/onsi/ginkgo/ginkgo
+go install github.com/opencontainers/runc
+runc help
+ginkgo -r
